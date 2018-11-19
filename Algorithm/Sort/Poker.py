@@ -79,8 +79,11 @@ pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages
 pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_HK.png'),(int(size[0]/2), int(size[1]/2))), 0x3D))
 
 random.shuffle(pokers)
+
+
 length = len(pokers)
 length2 = int(length/2)
+
 while True:
     for event in pygame.event.get():
         if event.type in (QUIT, KEYDOWN):
@@ -91,5 +94,7 @@ while True:
         screen.blit(pokers[i][0], (10+i*Xoffset,20))
     for i in range(length2):
         screen.blit(pokers[i+length2][0], (10+i*Xoffset,20+Yoffset))
+        # pygame.time.delay(500)
     pygame.display.update()
+    
 
