@@ -5,25 +5,28 @@ from pygame.locals import *
 import random
 
 Width = 800
-Height = 800
+Height = 600
 white = 255,255,255
 blue = 100,0,100
 
 Resize = 4
 Xoffset = int(80/Resize)
-Yoffset = 360
+Yoffset = int(960/Resize)
 
 USEC = False
 USED = False
-USES = False
+USES = True
 USEH = True
+
+LARGER = 0
+EQUAL = 1
+SMALLER = 2
 
 pokers = []
 
 def pokersinit(size):
     if USEC:
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_CA.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x0E))
-        pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_C2.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x02))
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_C2.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x02))
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_C3.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x03))
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_C4.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x04))
@@ -79,7 +82,42 @@ def pokersinit(size):
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_HQ.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x3C))
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_HK.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x3D))
 
+def switchpoker(x, y):
+    tmp = pokers[x]
+    pokers[x] = pokers[y]
+    pokers[y] = tmp
 
+def switch4bit(x):
+    y = x>>4
+    x = (x&0xF) << 4
+    y = x|y
+    return y
+
+def comparepoker(x, y, flag = True):
+    # flag True H > S > D > C
+    if flag:
+        if pokers[x][1] > pokers[y][1]:
+            return LARGER
+        elif pokers[x][1] < pokers[y][1]:
+            return SMALLER
+        else:
+            return EQUAL
+    # flag False A > K > Q > J > T > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2
+    else:
+        if switch4bit(pokers[x][1]) > switch4bit(pokers[y][1]):
+            return LARGER
+        elif switch4bit(pokers[x][1]) < switch4bit(pokers[y][1]):
+            return SMALLER
+        else:
+            return EQUAL
+
+def blobpass():
+    length = len(pokers)
+    k = 0
+    for i in range(1, length):
+        if comparepoker(k, i) == LARGER:
+            switchpoker(k, i)
+        k = i
 
 def main():
     pygame.init()
@@ -94,16 +132,27 @@ def main():
 
     length = len(pokers)
     first = True
+    switchflag = False
 
     while True:
         for event in pygame.event.get():
-            if event.type in (QUIT, KEYDOWN):
+            if event.type == QUIT:
                 sys.exit()
+            elif event.type == KEYDOWN:
+                blobpass()
+                switchflag = True
+            elif event.type == MOUSEBUTTONDOWN:
+                random.shuffle(pokers)
+                switchflag = True
         if first:
             screen.fill(blue)
             for i in range(length):
                 screen.blit(pokers[i][0], (10+i*Xoffset,20))
             first = False
+        if switchflag:
+            for i in range(length):
+                screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset))
+            switchflag = False
         pygame.display.update()
         clock.tick(40)
     pygame.quit()
