@@ -4,7 +4,7 @@ import sys
 from pygame.locals import *
 import random
 
-Width = 800
+Width = 1200
 Height = 600
 white = 255,255,255
 blue = 100,0,100
@@ -93,7 +93,7 @@ def switch4bit(x):
     y = x|y
     return y
 
-def comparepoker(x, y, flag = True):
+def comparepoker(x, y, flag = False):
     # flag True H > S > D > C
     if flag:
         if pokers[x][1] > pokers[y][1]:
@@ -138,11 +138,13 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
-            elif event.type == KEYDOWN:
-                blobpass()
-                switchflag = True
             elif event.type == MOUSEBUTTONDOWN:
                 random.shuffle(pokers)
+                switchflag = True
+            keystate = pygame.key.get_pressed()
+            sortflag = keystate[K_SPACE]
+            if sortflag:
+                blobpass()
                 switchflag = True
         if first:
             screen.fill(blue)
