@@ -22,6 +22,8 @@ LARGER = 0
 EQUAL = 1
 SMALLER = 2
 
+WAITTIME = 200 #ms
+
 pokers = []
 
 def pokersinit(size):
@@ -83,13 +85,17 @@ def pokersinit(size):
         pokers.append((pygame.transform.smoothscale(pygame.image.load('../../PokerImages/card_HK.png').convert_alpha(),(int(size[0]/Resize), int(size[1]/Resize))), 0x3D))
 
 def switchpoker(screen, length, x, y):
-    # screen.fill(blue)
+    screen.fill(blue)
+    for i in range(length):
+        screen.blit(pokers[i][0], (10+i*Xoffset,20))
+
     clock = pygame.time.Clock()
     for i in range(length):
         if i!=x and i!=y:
             screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset))
         else:
             screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset-10))
+    pygame.time.wait(WAITTIME)
     pygame.display.update()
     tmp = pokers[x]
     pokers[x] = pokers[y]
@@ -99,6 +105,11 @@ def switchpoker(screen, length, x, y):
             screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset))
         else:
             screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset-10))
+    pygame.time.wait(WAITTIME)
+
+    for i in range(length):
+        screen.blit(pokers[i][0], (10+i*Xoffset,20))
+
     pygame.display.update()
 
 
@@ -147,34 +158,26 @@ def main():
 
     length = len(pokers)
     first = True
-    switchflag = False
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
-            elif event.type == KEYDOWN:
-                blobpass(screen)
-                switchflag = True
             elif event.type == MOUSEBUTTONDOWN:
                 random.shuffle(pokers)
-                switchflag = True
+                first = True
             keystate = pygame.key.get_pressed()
             sortflag = keystate[K_SPACE]
             if sortflag:
-                blobpass()
-                switchflag = True
+                for i in range(length):
+                    blobpass(screen)
         if first:
             screen.fill(blue)
             for i in range(length):
                 screen.blit(pokers[i][0], (10+i*Xoffset,20))
             first = False
-        if switchflag:
-            #for i in range(length):
-            #    screen.blit(pokers[i][0], (10+i*Xoffset,20+Yoffset))
-            switchflag = False
-        # pygame.display.update()
-        clock.tick(1)
+            pygame.display.update()
+        clock.tick(30)
     pygame.quit()
     
 if __name__ == '__main__':
